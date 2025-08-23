@@ -1,24 +1,26 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
+# --- .NET build ---
+**/bin/
+**/obj/
+*.user
 *.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+
+# --- Node/Front ---
+node_modules/
+front/node_modules/
+front/dist/
+dist/
+npm-debug.log*
+yarn-error.log*
+
+# --- Vite/Cache ---
+front/.vite/
+.vite/
+
+# --- Sistema ---
+.DS_Store
+Thumbs.db
+
+# --- Env/Configs locais (se existirem) ---
+*.local.json
+*.env
+*.env.*
