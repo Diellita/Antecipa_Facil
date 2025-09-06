@@ -1,0 +1,17 @@
+* text=auto
+
+# Forçar LF em arquivos de script/config multiplataforma
+*.sh text eol=lf
+*.ps1 text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Evitar merges automáticos no lockfile
+package-lock.json -merge
+
+# Arquivos binários
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.pdf binary
