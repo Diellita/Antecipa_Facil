@@ -19,10 +19,6 @@ public class AuthController : ControllerBase
     private readonly IConfiguration _cfg;
     private readonly AppDbContext _db;
 
-    // Aprovador fixo (simples para teste)
-    private const string ApproverEmail = "aprovador.demo@vize.com";
-    private const string ApproverPassword = "123456";
-
     public AuthController(IConfiguration cfg, AppDbContext db)
     {
         _cfg = cfg;
@@ -37,36 +33,26 @@ public class AuthController : ControllerBase
 
             var email = dto.Email.Trim();
 
-            // 1) APROVADOR em memória (checa ANTES do cliente do banco)
-            if (email.Equals(ApproverEmail, StringComparison.OrdinalIgnoreCase) && dto.Password == ApproverPassword)
-            {
-                var tokenAprov = IssueJwt(
-                    userId: "approver-1",
-                    email: ApproverEmail,
-                    role: "APROVADOR",
-                    clientId: null
-                );
-                return Ok(new TokenResponse(tokenAprov, "APROVADOR", "approver-1"));
-            }
-
-            // 2) CLIENTE no banco
             var cliente = await _db.Clientes
                 .AsNoTracking()
+                .Include(c => c.Usuario) 
                 .FirstOrDefaultAsync(c => c.Email == email && c.Senha == dto.Password, ct);
 
-            if (cliente != null)
-            {
-                var tokenCliente = IssueJwt(
-                    userId: $"client-{cliente.Id:D2}",
-                    email: cliente.Email,
-                    role: "CLIENTE",
-                    clientId: cliente.Id.ToString()
-                );
-                return Ok(new TokenResponse(tokenCliente, "CLIENTE", $"client-{cliente.Id:D2}"));
-            }
+            if (cliente is null)
+                return Unauthorized(new { message = "E-mail ou senha inválidos." });
 
-            // 3) Credenciais inválidas
-            return Unauthorized(new { message = "E-mail ou senha inválidos." });
+            var isAprovador = cliente.Usuario?.TipoUsuario == TipoUsuario.APROVADOR;
+            var role = isAprovador ? "APROVADOR" : "CLIENTE";
+            var userId = isAprovador ? $"approver-{cliente.Id:D2}" : $"client-{cliente.Id:D2}";
+
+            var token = IssueJwt(
+                userId: userId,
+                email: cliente.Email,
+                role: role,
+                clientId: isAprovador ? null : cliente.Id.ToString()
+            );
+
+            return Ok(new TokenResponse(token, role, userId));
         }
 
     private string IssueJwt(string userId, string email, string role, string? clientId)

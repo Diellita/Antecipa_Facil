@@ -1,6 +1,7 @@
 C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\appsettings.json
 C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\Data\seed.json
+C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\WebApi.staticwebassets.endpoints.json
 C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\WebApi.exe
 C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\WebApi.deps.json
 C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\WebApi.runtimeconfig.json
@@ -92,6 +93,7 @@ C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\tr\Microsoft.CodeAna
 C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\WebApi.csproj.AssemblyReference.cache
+C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\rpswa.dswa.cache.json
 C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\WebApi.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\WebApi.AssemblyInfoInputs.cache
 C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\WebApi.AssemblyInfo.cs
@@ -99,14 +101,14 @@ C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\WebApi.csproj.CoreCo
 C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\WebApi.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\WebApi.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\WebApi.sourcelink.json
-C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\staticwebassets.build.json
-C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\staticwebassets.development.json
-C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\staticwebassets\msbuild.WebApi.Microsoft.AspNetCore.StaticWebAssets.props
-C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\staticwebassets\msbuild.build.WebApi.props
-C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.WebApi.props
-C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.WebApi.props
-C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\staticwebassets.pack.json
+C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\rjimswa.dswa.cache.json
+C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
+C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
 C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\scopedcss\bundle\WebApi.styles.css
+C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\staticwebassets.build.json
+C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\staticwebassets.build.json.cache
+C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\staticwebassets.development.json
+C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\staticwebassets.build.endpoints.json
 C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\WebApi.csproj.Up2Date
 C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\WebApi.dll
 C:\Users\green\Desktop\Vize\backend\WebApi\obj\Debug\net8.0\refint\WebApi.dll

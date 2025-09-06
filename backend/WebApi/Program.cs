@@ -14,7 +14,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ===== CORS (front Vite) =====
-// Libera as portas 5173–5186 com credenciais
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", p =>
@@ -104,7 +103,6 @@ else
     app.UseHttpsRedirection();
 }
 
-// CORS deve vir antes de AuthZ quando usa credenciais
 app.UseCors("Frontend");
 
 app.UseAuthentication();
