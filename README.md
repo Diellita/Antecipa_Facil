@@ -24,7 +24,7 @@ O sistema simula a **antecipação de parcelas**, permitindo que clientes solici
 
 ---
 
-## 🗂 Estrutura (resumo)
+## Estrutura 
 
 ```text
 AntecipaFacil/
