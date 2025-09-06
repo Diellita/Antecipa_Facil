@@ -59,7 +59,7 @@ docker --version
 
 ---
 
-## ▶️ Como rodar (Local + Docker)
+## Como rodar (Local + Docker)
 
 ### 1) Subir o banco PostgreSQL via Docker
 O repositório inclui um `docker-compose.yml` com o serviço **db** (container `antecipafacil-db`).
