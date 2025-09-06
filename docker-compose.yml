@@ -1,12 +1,13 @@
+
 version: '3.9'
 
 services:
   db:
     image: postgres:15
-    container_name: vize-db
+    container_name: antecipafacil-db
     restart: always
     environment:
-      POSTGRES_DB: vize
+      POSTGRES_DB: antecipafacil
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:

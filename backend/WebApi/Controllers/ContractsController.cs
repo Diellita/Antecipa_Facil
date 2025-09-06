@@ -1,4 +1,3 @@
-// backend/Controllers/ContractsController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +9,7 @@ namespace WebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize] // exige JWT
+    [Authorize] 
     public class ContractsController : ControllerBase
     {
         private readonly AppDbContext _db;
@@ -20,7 +19,6 @@ namespace WebApi.Controllers
             _db = db;
         }
 
-        // ==== DTOs tipados (evita 'dynamic' no EF) ==========================
         public sealed class ContractListItemDto
         {
             public int id { get; set; }
@@ -46,15 +44,12 @@ namespace WebApi.Controllers
             public string ownerName { get; set; } = "";
             public IEnumerable<ParcelaDto> parcelas { get; set; } = Array.Empty<ParcelaDto>();
         }
-        // ====================================================================
 
-        // Helpers
         private static string? GetRole(ClaimsPrincipal u) =>
             u.FindFirstValue(ClaimTypes.Role) ?? u.FindFirstValue("role");
 
         private static int? GetClientId(ClaimsPrincipal u)
         {
-            // 1) tenta claim "clientId"
             var claimClientId = u.Claims
                 .FirstOrDefault(c => c.Type.Equals("clientId", StringComparison.OrdinalIgnoreCase))
                 ?.Value;
@@ -62,7 +57,6 @@ namespace WebApi.Controllers
             if (int.TryParse(claimClientId, out var idParsed))
                 return idParsed;
 
-            // 2) fallback: extrai dígitos do sub/nameidentifier (ex: "client-02")
             var nameId = u.FindFirstValue(ClaimTypes.NameIdentifier) ?? u.FindFirstValue("sub");
             if (!string.IsNullOrWhiteSpace(nameId))
             {
@@ -72,7 +66,6 @@ namespace WebApi.Controllers
             return null;
         }
 
-        // GET /contracts  -> apenas meus contratos (CLIENTE)
         [HttpGet]
         public async Task<IActionResult> GetMyContracts()
         {
@@ -80,7 +73,7 @@ namespace WebApi.Controllers
             var clienteId = GetClientId(User);
 
             if (role == "APROVADOR")
-                return Forbid(); // aprovador usa /contracts/all
+                return Forbid(); 
 
             if (clienteId is null)
                 return Unauthorized("clientId ausente no token.");
@@ -103,8 +96,6 @@ namespace WebApi.Controllers
             return Ok(contratos);
         }
 
-        // GET /contracts/all  -> aprovador enxerga todos; cliente vê só os dele
-        // GET /contracts/all  -> QUALQUER usuário autenticado vê todos (read-only)
         [HttpGet("all")]
         public async Task<IActionResult> GetAllContracts()
         {
@@ -122,7 +113,6 @@ namespace WebApi.Controllers
             return Ok(list);
         }
 
-        // GET /contracts/{id}/detail  -> detalhe + parcelas
         [HttpGet("{id:int}/detail")]
         public async Task<IActionResult> GetDetail(int id)
         {
@@ -133,7 +123,6 @@ namespace WebApi.Controllers
             if (contrato is null)
                 return NotFound("Contrato não encontrado.");
 
-            // Se cliente, só pode ver contrato dele
             if (role == "CLIENTE")
             {
                 if (clienteId is null) return Unauthorized("clientId ausente no token.");

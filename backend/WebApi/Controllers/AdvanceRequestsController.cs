@@ -20,7 +20,6 @@ namespace WebApi.Controllers
             _service = service;
         }
 
-        // POST /advance-request
         [HttpPost]
         [Authorize(Roles = "CLIENTE")]
         public async Task<IActionResult> Create([FromBody] AdvanceRequestCreateDto dto, CancellationToken ct)
@@ -47,7 +46,6 @@ namespace WebApi.Controllers
             }
         }
 
-        // GET /advance-request/{id}
         [HttpGet("{id:int}")]
         [Authorize(Roles = "CLIENTE,APROVADOR")]
         public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken ct)
@@ -58,7 +56,6 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
-        // GET /advance-request
         [HttpGet]
         [Authorize(Roles = "CLIENTE")]
         public async Task<IActionResult> GetAdvanceRequests([FromQuery] AdvanceRequestStatus? status = null, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
@@ -79,7 +76,6 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
-        // GET /advance-request/admin?status=PENDENTE&startDate=...&endDate=...&page=1&pageSize=10
         [HttpGet("admin")]
         [Authorize(Roles = "APROVADOR")]
         public async Task<IActionResult> GetAdvanceRequestsAdmin(
@@ -96,7 +92,6 @@ namespace WebApi.Controllers
             return Ok(result);
         }
 
-        // PUT /advance-request/approve
         [HttpPut("approve")]
         [Authorize(Roles = "APROVADOR")]
         public async Task<IActionResult> ApproveBulkAsync([FromBody] AdvanceRequestApproveDto dto, CancellationToken ct)
@@ -108,7 +103,6 @@ namespace WebApi.Controllers
             return NoContent();
         }
 
-        // PUT /advance-request/reject
         [HttpPut("reject")]
         [Authorize(Roles = "APROVADOR")]
         public async Task<IActionResult> RejectBulkAsync(

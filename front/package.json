@@ -1,8 +1,8 @@
 {
-  "name": "frontend2",
+  "name": "antecipa-facil-frontend",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://Diellita.github.io/prova-vize",
+  "homepage": "https://Diellita.github.io/antecipa-facil",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -30,7 +30,6 @@ import {
 } from "../services/contratos";
 import type { DetalheContrato, Parcela, StatusParcelas } from "../services/contratos";
 
-/* ============ estilos ============ */
 const styles = {
   page: {
     minHeight: "100vh",
@@ -68,7 +67,6 @@ const styles = {
   tableWrap: { overflow: "auto" } as React.CSSProperties,
 };
 
-/* ============ utils ============ */
 function coerceList<T = any>(res: unknown): T[] {
   if (!res) return [];
   if (Array.isArray(res)) return res as T[];
@@ -99,7 +97,6 @@ function badgeFor(status: "PENDENTE" | "APROVADO" | "REPROVADO") {
   }[status];
 }
 
-/* ============ sessão/JWT ============ */
 function readSession(): any {
   try { return JSON.parse(localStorage.getItem("session") || "{}"); } catch { return {}; }
 }
@@ -138,8 +135,7 @@ function bestName() {
   return String(raw);
 }
 
-/* ============ Adapters ============ */
-// cliente
+
 async function fetchMyAdvanceRequests(): Promise<AdvanceRequest[]> {
   const anyApi = API as any;
   if (typeof anyApi.getMyAdvanceRequests === "function") {
@@ -157,7 +153,6 @@ async function fetchMyAdvanceRequests(): Promise<AdvanceRequest[]> {
   return coerceList<AdvanceRequest>(await resp.json());
 }
 
-// admin
 async function fetchAdminAdvanceRequests(): Promise<AdvanceRequest[]> {
   const anyApi = API as any;
   if (typeof anyApi.getAdminAdvanceRequests === "function") {
@@ -175,7 +170,6 @@ async function fetchAdminAdvanceRequests(): Promise<AdvanceRequest[]> {
   return coerceList<AdvanceRequest>(await resp.json());
 }
 
-// criar — payload { contratoId, parcelaNumero, notes }
 async function createAdvance(payload: { contratoId: number; parcelaNumero: number; notes?: string }) {
   const anyApi = API as any;
   if (typeof anyApi.createAdvanceRequest === "function") {
@@ -195,7 +189,6 @@ async function createAdvance(payload: { contratoId: number; parcelaNumero: numbe
   throw new Error(txt || `Falha ao criar solicitação (${resp.status}).`);
 }
 
-// aprovação em massa (admin) — backend retorna 204
 async function approveInBulk(ids: number[]): Promise<void> {
   const anyApi = API as any;
   if (typeof anyApi.approveInBulk === "function") {
@@ -214,12 +207,11 @@ async function approveInBulk(ids: number[]): Promise<void> {
   }
 }
 
-// todos contratos (para dropdown)
 async function fetchAllContracts(): Promise<Contract[]> {
   const anyApi = API as any;
   if (anyApi.api?.get) {
     try {
-      const r = await anyApi.api.get("/contracts/all"); // ✅ endpoint novo
+      const r = await anyApi.api.get("/contracts/all"); 
       return coerceList<Contract>(r?.data ?? r);
     } catch (err) {
       return [];
@@ -260,45 +252,36 @@ export default function Lista() {
   ).toUpperCase().trim() as "CLIENTE" | "APROVADOR";
   const [perfil] = React.useState<"CLIENTE" | "APROVADOR">(computedPerfil);
 
-  // criação
   const [creating, setCreating] = React.useState(false);
   const [notes, setNotes] = React.useState("");
 
-  // contratos (dropdown Cliente)
 const [contracts, setContracts] = React.useState<Contract[]>([]);
 const [contractsLoading, setContractsLoading] = React.useState(true);
 const [contratoId, setContratoId] = React.useState<number | null>(null);
 const [myClientId, setMyClientId] = React.useState<number | null>(null);
-// filtro "mostrar apenas meus contratos"
 const [onlyMine, setOnlyMine] = React.useState(true);
 
 React.useEffect(() => {
-  loadContracts(); // recarrega a lista quando o toggle muda
+  loadContracts();
 }, [onlyMine]);
 
 
-  // detalhe/parcelas
   const [detalhe, setDetalhe] = React.useState<DetalheContrato | null>(null);
   const [parcelasElegiveis, setParcelasElegiveis] = React.useState<Parcela[]>([]);
   const [parcelaNumero, setParcelaNumero] = React.useState<number | "">("");
 
-  // tabela
   const [rows, setRows] = React.useState<AdvanceRequest[]>([]);
   const [err, setErr] = React.useState<string | null>(null);
 
-  // filtros visuais
   const [filtroTexto, setFiltroTexto] = React.useState("");
   const [filtroStatus, setFiltroStatus] =
     React.useState<"PENDENTE" | "APROVADO" | "REPROVADO" | "TODOS">("TODOS");
 
-  // ADMIN — seleção para aprovação em massa
   const [adminChecked, setAdminChecked] = React.useState<Record<number, boolean>>({});
 
-  // cache leve
   const contratoCodeCache = React.useRef<Map<number, string>>(new Map());
   const clienteNomeCache = React.useRef<Map<number, string>>(new Map());
 
-  // carrega tabela
   async function loadTable() {
     try {
       setLoading(true);
@@ -316,40 +299,34 @@ React.useEffect(() => {
     }
   }
 
-  // carrega contratos (usa /contracts/all) e aplica o toggle onlyMine
   async function loadContracts() {
     try {
       setContractsLoading(true);
 
-      // 1) Busca TODOS os contratos do backend
       const all = await fetchAllContracts();
 
-      // 2) Descobre meu clientId (JWT > sessão)
       const j = readJwt() || {};
       const s = readSession() || {};
       const rawId = s.clienteId ?? s.clientId ?? j.clientId ?? j.clienteId ?? null;
       const myId: number | null = rawId != null ? Number(rawId) : null;
       setMyClientId(myId);
 
-      // 3) Filtro LOCAL: se onlyMine=true mostra só meus; se false mostra TODOS
       const filtered = (onlyMine && myId != null)
         ? all.filter((c: any) => Number(c.ownerId ?? c.clienteId) === myId)
         : all;
 
       setContracts(filtered);
 
-      // 4) Seleciona contrato padrão se o atual não existir na lista filtrada
       if (filtered.length && (contratoId == null || !filtered.some((c: any) => c.id === contratoId))) {
         const nextId = filtered[0].id;
         setContratoId(nextId);
       }
 
-      // 5) Define displayName se ainda vazio
       if (!displayName && filtered.length && filtered[0].ownerName) {
         setDisplayName(filtered[0].ownerName!);
       }
     } catch (err) {
-      setContracts([]); // fallback seguro
+      setContracts([]); 
     } finally {
       setContractsLoading(false);
     }
@@ -365,10 +342,8 @@ React.useEffect(() => {
   React.useEffect(() => {
     loadTable();
     loadContracts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // aplica filtro "só meus"
   const contractsForDropdown = React.useMemo(() => {
     if (!onlyMine || myClientId == null) return contracts;
     return contracts.filter(c => Number(c.ownerId ?? c.clienteId) === myClientId);
@@ -382,7 +357,6 @@ React.useEffect(() => {
     }
   }, [onlyMine, contractsForDropdown, contratoId]);
 
-  // carregar detalhe/parcelas ao trocar contrato
   React.useEffect(() => {
     (async () => {
       try {
@@ -404,7 +378,6 @@ React.useEffect(() => {
 
         setDetalhe(det);
 
-        // bloqueio: já existe pendência neste contrato
         if (existeParcelaAguardandoAprovacao(det.parcelas)) {
           setParcelasElegiveis([]);
           setParcelaNumero("");
@@ -423,7 +396,6 @@ React.useEffect(() => {
     })();
   }, [contratoId, contracts]);
 
-// helper para manter o botão visível (sem depender de CSS global)
 function fireAlert(opts: { icon: "warning" | "error" | "success"; title: string; text: string }) {
   Swal.fire({
     icon: opts.icon,
@@ -459,7 +431,6 @@ async function handleCreate() {
       if (!Number.isFinite(n)) throw new Error("Selecione uma parcela elegível.");
       const notaComParcela = `[PARCELA ${n}] ${notes || ""}`.trim();
 
-      // envia também parcelaNumero
       await createAdvance({ contratoId: cid, notes: notaComParcela, parcelaNumero: n } as any);
     } else {
       await createAdvance({ contratoId: cid, notes: notes || undefined } as any);
@@ -474,7 +445,6 @@ async function handleCreate() {
       text: "Sua solicitação foi enviada com sucesso.",
     });
   } catch (e: any) {
-    // tenta extrair mensagem amigável do backend
     const backendMsg =
       e?.response?.data?.error ||
       e?.message ||
@@ -514,8 +484,6 @@ async function handleCreate() {
   }
 }
 
-
-  // filtro client-side
   const rowsFiltradas = rows.filter((r) => {
     const sNorm = normalizeStatus(r.status);
     const byStatus = filtroStatus === "TODOS" ? true : sNorm === filtroStatus;
@@ -539,7 +507,6 @@ async function handleCreate() {
   return (
     <div style={styles.page}>
       <div style={styles.container}>
-        {/* Cabeçalho */}
         <div style={{ width: "100%", padding: "12px 20px", marginBottom: 10, display: "flex", justifyContent: "space-between" }}>
           <div style={{ background: perfil === "APROVADOR" ? "#16a34a" : "#446bbe", color: "#fff", padding: "6px 12px", borderRadius: 8, fontWeight: 600 }}>
             {`Perfil Logado: ${perfil}${displayName ? ` (${displayName})` : ""}`}
@@ -563,14 +530,12 @@ async function handleCreate() {
           </div>
         </div>
 
-        {/* Nova solicitação (somente CLIENTE) */}
         {perfil === "CLIENTE" && (
           <div style={{ marginLeft: "3%" }}>
             <div style={{ ...styles.card, marginBottom: 16, maxWidth: "97%" }}>
               <div style={{ ...styles.section }}>
                 <strong style={{ fontSize: 22, fontWeight: 800 }}>Nova solicitação</strong>
 
-                {/* Toggle "só meus contratos" */}
                 <div style={{ marginTop: 8, marginBottom: 8, display: "flex", gap: 10, alignItems: "center" }}>
                   <input
                     id="onlyMineToggle"
@@ -587,7 +552,6 @@ async function handleCreate() {
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: 12, marginTop: 12 }}>
-              {/* Contrato */}
               <div>
                 <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>Contrato</div>
                 {contractsLoading ? (
@@ -659,9 +623,6 @@ async function handleCreate() {
                   </div>
                 )}
               </div>
-
-
-                  {/* Parcela elegível (obrigatória) */}
                   <div>
                     <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>Parcela elegível</div>
                     {detalhe && existeParcelaAguardandoAprovacao(detalhe.parcelas) ? (
@@ -686,8 +647,6 @@ async function handleCreate() {
                       </div>
                     )}
                   </div>
-
-                  {/* Observações */}
                   <div>
                     <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>Observações (opcional)</div>
                     <input
@@ -697,8 +656,6 @@ async function handleCreate() {
                       style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #d0d7de" }}
                     />
                   </div>
-
-                  {/* Botão */}
                   <div style={{ display: "flex", alignItems: "end", justifyContent: "flex-end" }}>
                     <button
                       onClick={handleCreate}
@@ -727,8 +684,6 @@ async function handleCreate() {
             {err}
           </div>
         )}
-
-        {/* Filtros da Tabela */}
         <div style={{ ...styles.card, margin: "0 auto", marginTop: "3%", marginBottom: "1%", maxWidth: "95%" }}>
           <div style={{ padding: 24 }}>
             <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0, marginBottom: 16 }}>Filtros</h2>
@@ -771,8 +726,6 @@ async function handleCreate() {
             </div>
           </div>
         </div>
-
-      {/* Atualizar */}
               <div style={{ display: "flex", justifyContent: "flex-end", marginTop:"5%", marginBottom:"1%" }}>
                 <button
                   onClick={loadTable}
@@ -790,8 +743,6 @@ async function handleCreate() {
                   {loading ? "Atualizando..." : "Atualizar Tabela"}
                 </button>
               </div>
-
-        {/* Tabela */}
         <div style={{ ...styles.card, marginBottom: 24 }}>
           <div style={{ ...styles.section, paddingTop: 12, paddingBottom: 12 }}>
             <div style={styles.tableWrap}>

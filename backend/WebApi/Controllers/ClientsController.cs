@@ -15,7 +15,6 @@ namespace WebApi.Controllers
         private readonly AppDbContext _db;
         public ClientsController(AppDbContext db) { _db = db; }
 
-        // GET /clients
         [HttpGet]
         [Authorize(Roles = "CLIENTE,APROVADOR")]
         public async Task<IActionResult> GetAll(CancellationToken ct)

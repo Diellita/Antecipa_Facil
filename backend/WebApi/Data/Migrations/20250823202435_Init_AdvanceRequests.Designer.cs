@@ -15,7 +15,6 @@ namespace WebApi.Data.Migrations
     [Migration("20250823202435_Init_AdvanceRequests")]
     partial class Init_AdvanceRequests
     {
-        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
