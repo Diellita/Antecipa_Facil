@@ -1,5 +1,4 @@
-// front/src/pages/Login.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../lib/api";
 
@@ -11,27 +10,81 @@ export default function Login({ onSuccess }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-const handleLogin = async () => {
-  setError(null);
-  try {
-    const data = await login(email, password); 
-
-    localStorage.setItem("role", data.role);
-
-    if (data.role === "APROVADOR") {
-      onSuccess("APROVADOR");
-      navigate("/admin");
-    } else {
-      onSuccess("CLIENTE");
-      navigate("/lista");
+  // 🔁 Reidrata erro se a tela remontar (evita "piscar e sumir")
+  useEffect(() => {
+    const saved = sessionStorage.getItem("loginError");
+    if (saved) {
+      setError(saved);
+      sessionStorage.removeItem("loginError");
     }
-  } catch (e: any) {
-    setError(e?.response?.data?.message || e?.message || "Erro no login");
-  }
-};
+  }, []);
 
+  // impede que Enter gere dois submits
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+      void handleLogin();
+    }
+  };
+
+  const handleLogin = async () => {
+    if (loading) return;
+
+    // limpa qualquer credencial antiga ANTES de tentar
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("role");
+    localStorage.removeItem("userId");
+
+    setError(null);
+
+    const emailTrim = email.trim();
+    const passTrim  = password.trim();
+
+    if (!emailTrim || !passTrim) {
+      const msg = "Informe e-mail e senha.";
+      setError(msg);
+      sessionStorage.setItem("loginError", msg);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const data = await login(emailTrim, passTrim); // deve lançar se 4xx/5xx
+
+      localStorage.setItem("role", data.role);
+      localStorage.setItem("accessToken", data.accessToken ?? "");
+      localStorage.setItem("userId", data.userId ?? "");
+
+      if (data.role === "APROVADOR") {
+        onSuccess("APROVADOR");
+        navigate("/admin");
+      } else {
+        onSuccess("CLIENTE");
+        navigate("/lista");
+      }
+    } catch (e: any) {
+      const status = e?.response?.status;
+      const msg =
+        status === 401
+          ? "E-mail ou senha inválidos."
+          : e?.response?.data?.message || e?.message || "Falha ao conectar.";
+
+      // persiste para sobreviver a remontagens
+      setError(msg);
+      sessionStorage.setItem("loginError", msg);
+
+      // garante ambiente “limpo”
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("role");
+      localStorage.removeItem("userId");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const pageStyle: React.CSSProperties = {
     minHeight: "100vh",
@@ -78,15 +131,17 @@ const handleLogin = async () => {
     borderRadius: 8,
     fontSize: 14,
     cursor: "pointer",
+    opacity: loading ? 0.7 : 1,
   };
 
   const errorStyle: React.CSSProperties = {
     background: "#fee2e2",
     color: "#b91c1c",
-    padding: "8px 10px",
+    padding: "10px 12px",
     borderRadius: 8,
     marginBottom: 12,
     fontSize: 13,
+    border: "1px solid #fecaca",
   };
 
   return (
@@ -101,6 +156,7 @@ const handleLogin = async () => {
           placeholder="E-mail"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={handleKeyDown}
           style={inputStyle}
         />
         <input
@@ -108,11 +164,11 @@ const handleLogin = async () => {
           placeholder="Senha"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={handleKeyDown}
           style={inputStyle}
-          onKeyDown={(e) => e.key === "Enter" && handleLogin()}
         />
-        <button onClick={handleLogin} style={btnStyle}>
-          Acessar
+        <button onClick={handleLogin} style={btnStyle} disabled={loading}>
+          {loading ? "Entrando..." : "Acessar"}
         </button>
       </div>
     </div>

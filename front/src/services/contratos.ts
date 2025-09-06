@@ -1,7 +1,5 @@
-// front/src/services/contratos.ts
 import * as API from "../lib/api";
 
-/* ===================== Tipos ===================== */
 export type StatusParcelas = "PAGO" | "A_VENCER" | "AGUARDANDO_APROVACAO";
 
 export type Parcela = {
@@ -17,7 +15,7 @@ export type DetalheContrato = {
   parcelas: Parcela[];
 };
 
-/* ===================== Helpers ===================== */
+
 const BASE_URL: string = (API as any)?.BASE_URL || "http://localhost:5275";
 
 function authHeaders(): HeadersInit {
@@ -34,8 +32,6 @@ function authHeaders(): HeadersInit {
   }
 }
 
-// Extrai o número do ID no fim do código (ex.: "AS_2_CONTRATO_6" -> 6)
-// Funciona também para "CONTRATO-002-06" -> 6
 function codeToId(code: string): number | null {
   if (!code) return null;
   const m = String(code).match(/(\d+)\s*$/);
@@ -44,7 +40,6 @@ function codeToId(code: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-// gera parcelas "razoáveis" para fallback, mimetizando as regras
 function makeFallbackParcelas(contratoCode: string): Parcela[] {
   const now = new Date();
   const utc = (d: Date) => new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0));
@@ -56,18 +51,15 @@ function makeFallbackParcelas(contratoCode: string): Parcela[] {
     let status: StatusParcelas = "A_VENCER";
 
     if (i === 1) {
-      // já vencida e paga
       const d = new Date(now);
       d.setDate(d.getDate() - 10);
       venc = d;
       status = "PAGO";
     } else if (i === 2) {
-      // menor que 30 dias
       const d = new Date(now);
       d.setDate(d.getDate() + 20);
       venc = d;
     } else if (i === 3) {
-      // elegível (>30)
       const d = new Date(now);
       d.setDate(d.getDate() + 45);
       venc = d;
@@ -85,7 +77,6 @@ function makeFallbackParcelas(contratoCode: string): Parcela[] {
     });
   }
 
-  // opcional: simula AGUARDANDO_APROVACAO apenas no "primeiro" contrato (id menor)
   const id = codeToId(contratoCode);
   if (id && id % 10 === 1) {
     const p4 = parcelas.find((p) => p.numero === 4);
@@ -95,9 +86,6 @@ function makeFallbackParcelas(contratoCode: string): Parcela[] {
   return parcelas;
 }
 
-/* ===================== API pública ===================== */
-
-// Usa sempre o endpoint GET /contracts/{id}/detail; se falhar, cai no fallback local.
 export async function obterDetalheContrato(code: string): Promise<DetalheContrato> {
   const id = codeToId(code);
 
@@ -111,7 +99,6 @@ export async function obterDetalheContrato(code: string): Promise<DetalheContrat
 
       if (r.ok) {
         const det = await r.json();
-        // Mapeia do payload do backend para o nosso tipo (dueDate -> vencimento)
         if (det && Array.isArray(det.parcelas)) {
           const mapped: DetalheContrato = {
             contratoCodigo: code,
@@ -119,23 +106,19 @@ export async function obterDetalheContrato(code: string): Promise<DetalheContrat
             parcelas: det.parcelas.map((p: any) => ({
               numero: Number(p.numero),
               valor: Number(p.valor),
-              vencimento: String(p.dueDate), // backend retorna dueDate
+              vencimento: String(p.dueDate), 
               status: String(p.status) as StatusParcelas,
             })),
           };
           return mapped;
         }
-        // se a resposta não tiver o formato esperado, cai no fallback
       } else {
-        // tentar extrair mensagem de erro antes do fallback
         try { console.warn("detalhe contrato:", await r.text()); } catch {}
       }
     } catch (e) {
-      // continua para fallback
     }
   }
 
-  // Fallback local — garante dropdown utilizável
   const nome = (() => {
     try {
       const s = JSON.parse(localStorage.getItem("session") || "{}");
@@ -177,7 +160,6 @@ export async function obterDetalheContrato(code: string): Promise<DetalheContrat
   return detFallback;
 }
 
-// Regra de elegibilidade: > 30 dias e status "A_VENCER"
 export function parcelaElegivel(vencimentoISO: string, status: StatusParcelas): boolean {
   if (status !== "A_VENCER") return false;
   try {
@@ -190,7 +172,6 @@ export function parcelaElegivel(vencimentoISO: string, status: StatusParcelas): 
   }
 }
 
-// Checa se existe alguma parcela aguardando aprovação
 export function existeParcelaAguardandoAprovacao(parcelas: Parcela[] = []): boolean {
   return parcelas.some((p) => p.status === "AGUARDANDO_APROVACAO");
 }

@@ -13,7 +13,7 @@ type AdvanceRequest = {
   id: number;
   clienteId: number;
   contratoId: number;
-  status: string | number; // 0=PENDENTE, 1=APROVADO, 2=REPROVADO ou texto
+  status: string | number; 
   notes?: string | null;
   createdAt: string;
   approvedAt?: string | null;
@@ -67,7 +67,6 @@ export default function Admin() {
   const [busy, setBusy] = React.useState<"approve" | "reject" | null>(null);
   const [clientsMap, setClientsMap] = React.useState<Record<number, string>>({});
 
-  // mapa de contratos para exibir NOME em vez de ID
   const [contractsMap, setContractsMap] = React.useState<Record<number, string>>({});
 
   const selected = React.useMemo(
@@ -86,14 +85,12 @@ async function load() {
     setLoading(true);
     setError(null);
 
-    // carrega solicitações + contratos + clientes em paralelo
     const [reqRes, contractsRes, clientsRes] = await Promise.allSettled([
       getAdminAdvanceRequests(),
       getAllContracts?.(),
       getAllClients?.(),
     ]);
 
-    // solicitações
     const list = reqRes.status === "fulfilled"
       ? coerceList<AdvanceRequest>(reqRes.value)
       : [];
@@ -106,7 +103,6 @@ async function load() {
     });
     setData(ordered);
 
-    // contratos -> mapa id->nome
     if (contractsRes.status === "fulfilled" && contractsRes.value) {
       const arr = coerceList<Contract>(contractsRes.value);
       const map: Record<number, string> = {};
@@ -117,7 +113,6 @@ async function load() {
       setContractsMap(map);
     }
 
-    // clientes -> mapa id->nome
     if (clientsRes.status === "fulfilled" && clientsRes.value) {
       const arr = coerceList<{ id: number; nome?: string; email?: string }>(clientsRes.value);
       const map: Record<number, string> = {};
@@ -171,10 +166,9 @@ async function load() {
         confirmButtonText,
         cancelButtonText: "Cancelar",
         reverseButtons: true,
-        // 👇 Desliga o estilo padrão e usa Tailwind
         buttonsStyling: false,
         customClass: {
-          actions: "flex gap-3 justify-center", // espaçamento entre botões
+          actions: "flex gap-3 justify-center", 
           confirmButton:
             (kind === "approve"
               ? "bg-green-600 hover:bg-green-700"
@@ -289,7 +283,6 @@ async function load() {
             Perfil: APROVADOR
           </span>
 
-          {/* Grupo Atualizar / Sair */}
           <div
             style={{ width: "100%", padding: "12px 20px" }}
             className="flex justify-end gap-2 mb-4"
@@ -314,7 +307,6 @@ async function load() {
           </div>
         </div>
 
-        {/* Grupo Aprovar / Reprovar */}
         <div className="flex justify-end gap-2 mb-4">
           <button
             onClick={doApprove}

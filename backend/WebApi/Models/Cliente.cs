@@ -14,9 +14,8 @@ namespace WebApi.Models
         public string Email { get; set; } = string.Empty;
 
         [Required, MaxLength(200)]
-        public string Senha { get; set; } = string.Empty; // hash depois
+        public string Senha { get; set; } = string.Empty; 
       
-        // vínculo obrigatório ao usuário (que guarda o TipoUsuario)
         [Required]
         public int UsuarioId { get; set; }
         public Usuario Usuario { get; set; } = null!;

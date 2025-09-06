@@ -18,7 +18,6 @@ namespace WebApi.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Contrato → tblcontrato
             modelBuilder.Entity<Contrato>(entity =>
             {
                 entity.ToTable("tblcontrato");
@@ -55,20 +54,17 @@ namespace WebApi.Data
                       .IsRequired()
                       .HasColumnName("numeroparcelas");
 
-                // FK contrato → cliente
                 entity.HasOne(e => e.Cliente)
                       .WithMany()
                       .HasForeignKey(e => e.ClienteId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                // contrato → parcelas
                 entity.HasMany(e => e.Parcelas)
                       .WithOne(p => p.Contrato)
                       .HasForeignKey(p => p.ContratoId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Parcela → tblparcelas
             modelBuilder.Entity<Parcela>(entity =>
             {
                 entity.ToTable("tblparcelas");
@@ -101,20 +97,17 @@ namespace WebApi.Data
                       .IsRequired()
                       .HasColumnName("clienteid");
 
-                // FK parcela → cliente
                 entity.HasOne(p => p.Cliente)
                       .WithMany()
                       .HasForeignKey(p => p.ClienteId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                // FK parcela → contrato
                 entity.HasOne(p => p.Contrato)
                       .WithMany(c => c.Parcelas)
                       .HasForeignKey(p => p.ContratoId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Cliente → tblcliente
             modelBuilder.Entity<Cliente>(entity =>
             {
                 entity.ToTable("tblcliente");
@@ -141,17 +134,14 @@ namespace WebApi.Data
                       .IsRequired()
                       .HasColumnName("usuarioid");
 
-                // FK cliente → usuario
                 entity.HasOne(c => c.Usuario)
                       .WithOne(u => u.Cliente)
                       .HasForeignKey<Cliente>(c => c.UsuarioId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                // índice único para email
                 entity.HasIndex(c => c.Email).IsUnique();
             });
 
-            // Usuario → tblusuario
             modelBuilder.Entity<Usuario>(entity =>
             {
                 entity.ToTable("tblusuario");
@@ -164,14 +154,12 @@ namespace WebApi.Data
                       .HasConversion<int>()
                       .HasColumnName("tipousuario");
 
-                // relação 1:1 com Cliente (FK está no Cliente)
                 entity.HasOne(u => u.Cliente)
                       .WithOne(c => c.Usuario)
                       .HasForeignKey<Cliente>(c => c.UsuarioId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // AdvanceRequest → tbladvancerequest
             modelBuilder.Entity<AdvanceRequest>(entity =>
             {
                 entity.ToTable("tbladvancerequest");
@@ -203,7 +191,6 @@ namespace WebApi.Data
                 entity.Property(a => a.ApprovedAt)
                       .HasColumnName("approvedat");
 
-                // FKs
                 entity.HasOne(a => a.Cliente)
                       .WithMany()
                       .HasForeignKey(a => a.ClienteId)
@@ -214,14 +201,12 @@ namespace WebApi.Data
                     .HasForeignKey(a => a.ContratoId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                // Relacionamento com itens
                 entity.HasMany(a => a.Items)
                       .WithOne(i => i.AdvanceRequest)
                       .HasForeignKey(i => i.AdvanceRequestId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // AdvanceRequestItem → tbladvancerequestitem
             modelBuilder.Entity<AdvanceRequestItem>(entity =>
             {
                 entity.ToTable("tbladvancerequestitem");
@@ -241,7 +226,6 @@ namespace WebApi.Data
                       .HasColumnType("numeric(18,2)")
                       .HasColumnName("valornasolicitacao");
 
-                // FKs
                 entity.HasOne(i => i.AdvanceRequest)
                       .WithMany(a => a.Items)
                       .HasForeignKey(i => i.AdvanceRequestId)

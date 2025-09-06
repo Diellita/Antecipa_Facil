@@ -10,7 +10,6 @@ namespace WebApi.Models
         [Required]
         public TipoUsuario TipoUsuario { get; set; }
 
-        // relação 1:1 com Cliente (opcional)
         public Cliente? Cliente { get; set; }
     }
 }

@@ -2,10 +2,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Security.Claims;
 using System.Text;
 using WebApi.Data;
 using WebApi.Services.AdvanceRequests;
-using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,21 +13,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ===== CORS (front Vite) =====
+const string CorsPolicy = "DevOrigins";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("Frontend", p =>
-        p.WithOrigins(
-            "http://localhost:5173","http://localhost:5174","http://localhost:5175",
-            "http://localhost:5176","http://localhost:5177","http://localhost:5178",
-            "http://localhost:5179","http://localhost:5180","http://localhost:5181",
-            "http://localhost:5182","http://localhost:5183","http://localhost:5184",
-            "http://localhost:5185","http://localhost:5186"
+    options.AddPolicy(CorsPolicy, p =>
+        p.SetIsOriginAllowed(origin =>
+               origin.StartsWith("http://localhost:")
+            || origin.StartsWith("http://127.0.0.1:")
         )
         .AllowAnyHeader()
         .AllowAnyMethod()
-        .AllowCredentials()
-        .WithExposedHeaders("Authorization"));
+        .AllowCredentials() 
+    );
 });
 
 // Auth/JWT
@@ -46,7 +43,7 @@ builder.Services
             ValidIssuer = jwtSection["Issuer"],
             ValidAudience = jwtSection["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Key"]!)),
-            RoleClaimType = ClaimTypes.Role // o token também traz "role", mas este mapeamento já cobre
+            RoleClaimType = ClaimTypes.Role
         };
     });
 
@@ -63,18 +60,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Vize API", Version = "v1" });
-
-    // JWT no Swagger
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "AntecipaFácil API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header usando o esquema Bearer.\r\n\r\nExemplo: Bearer {seu token}",
+        Description = "JWT Authorization header (Bearer {token})",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
-
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -92,7 +86,7 @@ var app = builder.Build();
 // Seed DB
 await DbSeeder.Seed(app.Services);
 
-// ===== Pipeline =====
+// Pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -103,8 +97,8 @@ else
     app.UseHttpsRedirection();
 }
 
-app.UseCors("Frontend");
-
+app.UseRouting();
+app.UseCors(CorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 

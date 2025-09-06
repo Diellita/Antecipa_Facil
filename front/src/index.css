@@ -2,17 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* garante altura total da viewport */
 html, body, #root {
   height: 100%;
 }
 
-/* remove margens padrão */
 body {
   margin: 0;
-  /* usa a imagem do seu projeto */
   background: url("/src/assets/imgs/gestao-imobiliaria.jpg") center center / cover no-repeat fixed;
-  /* opcional: leve overlay para contraste */
   position: relative;
 }
 
@@ -20,6 +16,6 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.15); /* ajuste 0.0–0.3 conforme desejar */
+  background: rgba(0,0,0,0.15); 
   pointer-events: none;
 }

@@ -1,6 +1,5 @@
 C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\appsettings.json
-C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\Data\seed.json
 C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\WebApi.staticwebassets.endpoints.json
 C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\WebApi.exe
 C:\Users\green\Desktop\Vize\backend\WebApi\bin\Debug\net8.0\WebApi.deps.json

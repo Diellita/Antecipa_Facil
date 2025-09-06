@@ -15,7 +15,6 @@ namespace WebApi.Data.Migrations
     [Migration("20250823203418_Create_Usuarios_Clientes")]
     partial class Create_Usuarios_Clientes
     {
-        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618

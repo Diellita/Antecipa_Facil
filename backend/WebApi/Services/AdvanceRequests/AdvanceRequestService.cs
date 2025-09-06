@@ -24,27 +24,23 @@ namespace WebApi.Services.AdvanceRequests
             string clientId,
             CancellationToken ct = default)
         {
-            // ✅ valida cliente do token
             var cliente = await _db.Clientes
                 .FirstOrDefaultAsync(c => c.Id.ToString() == clientId, ct);
             if (cliente == null)
                 throw new SecurityException("Cliente não encontrado.");
 
-            // ✅ valida contrato pertencente ao cliente
             var contrato = await _db.Contratos
                 .Include(c => c.Parcelas)
                 .FirstOrDefaultAsync(c => c.Id == contratoId && c.ClienteId == cliente.Id, ct);
             if (contrato == null)
                 throw new KeyNotFoundException("Contrato não encontrado para este cliente.");
 
-            // 🚫 bloqueio: já existe solicitação PENDENTE para este contrato
             var hasPending = await _db.AdvanceRequests
                 .AnyAsync(r => r.ContratoId == contrato.Id &&
                             r.Status == AdvanceRequestStatus.PENDENTE, ct);
             if (hasPending)
                 throw new InvalidOperationException("Já existe solicitação pendente para este contrato.");
 
-            // 📋 parcelas elegíveis (>30 dias, A_VENCER) deste contrato
             var limite = DateTime.UtcNow.AddDays(30);
             var elegiveis = contrato.Parcelas
                 .Where(p => p.Status == InstallmentStatus.A_VENCER && p.Vencimento > limite)
@@ -54,7 +50,6 @@ namespace WebApi.Services.AdvanceRequests
             if (!elegiveis.Any())
                 throw new InvalidOperationException("Nenhuma parcela elegível para antecipação.");
 
-            // 🎯 se o usuário escolheu uma parcela específica, manter só ela
             if (parcelaNumero.HasValue)
             {
                 elegiveis = elegiveis
@@ -65,7 +60,6 @@ namespace WebApi.Services.AdvanceRequests
                     throw new InvalidOperationException("Parcela não elegível ou inexistente para este contrato.");
             }
 
-            // 🧾 monta a solicitação contendo apenas as parcelas filtradas
             var request = new AdvanceRequest
             {
                 ClienteId = cliente.Id,
@@ -80,14 +74,12 @@ namespace WebApi.Services.AdvanceRequests
                 }).ToList()
             };
 
-            // ⏳ marca as parcelas como AGUARDANDO_APROVACAO
             foreach (var p in elegiveis)
                 p.Status = InstallmentStatus.AGUARDANDO_APROVACAO;
 
             _db.AdvanceRequests.Add(request);
             await _db.SaveChangesAsync(ct);
 
-            // 🔙 retorna o DTO
             return new AdvanceRequestDetailDto
             {
                 Id = request.Id,
@@ -184,18 +176,15 @@ namespace WebApi.Services.AdvanceRequests
             if (idList.Count == 0)
                 throw new InvalidOperationException("Nenhuma solicitação informada para aprovação.");
 
-            // Carrega as solicitações + itens + parcelas
             var requests = await _db.AdvanceRequests
                 .Include(r => r.Items).ThenInclude(i => i.Parcela)
                 .Where(r => idList.Contains(r.Id))
                 .ToListAsync(ct);
 
-            // Confere inexistentes
             var notFound = idList.Except(requests.Select(r => r.Id)).ToList();
             if (notFound.Any())
                 throw new KeyNotFoundException($"Solicitação(ões) não encontrada(s): {string.Join(", ", notFound)}");
 
-            // Regras: só PENDENTE; parcelas aguardando aprovação e vencimento > 30 dias
             var errors = new List<string>();
             var nowUtc = DateTime.UtcNow;
             var minDue = nowUtc.AddDays(30);
@@ -255,18 +244,15 @@ namespace WebApi.Services.AdvanceRequests
             if (idList.Count == 0)
                 throw new InvalidOperationException("Nenhuma solicitação informada para rejeição.");
 
-            // Carrega solicitações + itens + parcelas
             var requests = await _db.AdvanceRequests
                 .Include(r => r.Items).ThenInclude(i => i.Parcela)
                 .Where(r => idList.Contains(r.Id))
                 .ToListAsync(ct);
 
-            // Confere inexistentes
             var notFound = idList.Except(requests.Select(r => r.Id)).ToList();
             if (notFound.Any())
                 throw new KeyNotFoundException($"Solicitação(ões) não encontrada(s): {string.Join(", ", notFound)}");
 
-            // Só rejeita PENDENTE
             var invalid = requests.Where(r => r.Status != AdvanceRequestStatus.PENDENTE).Select(r => r.Id).ToList();
             if (invalid.Any())
                 throw new InvalidOperationException($"Só é possível rejeitar solicitações PENDENTE. Inválidas: {string.Join(", ", invalid)}");
@@ -277,14 +263,13 @@ namespace WebApi.Services.AdvanceRequests
                 foreach (var r in requests)
                 {
                     r.Status = AdvanceRequestStatus.REPROVADO;
-                    r.ApprovedAt = null; // não aprovado
+                    r.ApprovedAt = null; 
 
                     foreach (var item in r.Items)
                     {
                         var parcela = item.Parcela;
                         if (parcela is null) continue;
 
-                        // Ao rejeitar, parcelas voltam para A_VENCER se estavam aguardando aprovação
                         if (parcela.Status == InstallmentStatus.AGUARDANDO_APROVACAO)
                             parcela.Status = InstallmentStatus.A_VENCER;
                     }
