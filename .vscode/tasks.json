@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev Vite",
+      "type": "npm",
+      "script": "dev",
+      "isBackground": true,
+      "options": { "cwd": "${workspaceFolder}/front" },
+      "problemMatcher": {
+        "owner": "vite",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": { "regexp": "^(.*)$", "file": 1, "message": 1 },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*VITE v.*",
+          "endsPattern": ".*Local:\\s*http://localhost:5173.*"
+        }
+      }
+    },
+    {
+      "label": "build WebApi",
+      "type": "process",
+      "command": "dotnet",
+      "args": ["build", "${workspaceFolder}/Backend/WebApi/WebApi.csproj"],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    }
+  ]
+}
