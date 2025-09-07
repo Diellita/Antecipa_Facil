@@ -1,5 +1,8 @@
 # Antecipa Fácil — Sistema de Antecipação
 
+[![CI](https://github.com/Diellita/Antecipa_Facil/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Diellita/Antecipa_Facil/actions/workflows/ci.yml)
+
+
 Projeto **fullstack** com **React + TypeScript + Vite** no frontend e **.NET 8 (ASP.NET Core Web API)** no backend.  
 O sistema simula a **antecipação de parcelas**, permitindo que clientes solicitem adiantamentos e que aprovadores façam a gestão.
 
