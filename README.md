@@ -4,7 +4,7 @@
 
 
 Projeto **fullstack** com **React + TypeScript + Vite** no frontend e **.NET 8 (ASP.NET Core Web API)** no backend.  
-O sistema simula a **antecipação de parcelas**, permitindo que clientes solicitem adiantamentos e que aprovadores façam a gestão.
+O sistema simula a **antecipação de parcelas**, permitindo que clientes solicitem adiantamentos das parcelas dos contratos e que aprovadores façam a gestão.
 
 ---
 
