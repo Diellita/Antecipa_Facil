@@ -122,7 +122,7 @@ npm i axios sweetalert2
 ```
 Inicie o dev server:
 ```cmd
-npm run dev   # http://localhost:5173
+npm run dev
 ```
 
 ---
