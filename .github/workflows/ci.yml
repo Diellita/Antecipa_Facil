@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # -------- .NET 8 (backend) --------
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore (backend)
+        run: dotnet restore backend/WebApi
+
+      - name: Build (backend Release)
+        run: dotnet build -c Release --no-restore backend/WebApi
+
+      # -------- Node 18 (frontend) --------
+      - name: Setup Node 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install (frontend)
+        working-directory: front
+        run: npm ci
+
+      - name: Build (frontend)
+        working-directory: front
+        run: npm run build
